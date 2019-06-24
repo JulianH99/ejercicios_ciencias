@@ -16,6 +16,9 @@ class City:
         self.name = name
         self.coordinates = coordinates
 
+    def __str__(self):
+        return self.name
+
 
 class CityList:
     def __init__(self, cities=None):
@@ -27,6 +30,7 @@ class CityList:
         if cities is None:
             cities = {}
         self.cities = cities
+        self.only_cities = []
 
     def add_node(self, city_from, city_to, distance):
         """
@@ -40,6 +44,45 @@ class CityList:
         :return:
         """
         self.cities[(city_from, city_to)] = distance
+
+        if city_from.name not in map(str, self.only_cities):
+            self.only_cities.append(city_from)
+        
+        if city_to.name not in map(str, self.only_cities):
+            self.only_cities.append(city_to)
+
+    def get_cities(self):
+        """
+        :return: cities list
+        :rtype: List[City]
+        """
+        return self.only_cities
+    
+    def get_cities_names(self):
+        """
+        :return: cities' name
+        :rtype: List[str]
+        """
+        return list(map(lambda x: x.name, self.get_cities()))
+
+    def remove_city(self, city_name):
+        """
+        :param city_name:
+        :type city_name: str 
+        """
+        if city_name in self.get_cities_names():
+            city = list(filter(lambda x: x.name == city_name, self.get_cities()))[0]
+            connections = []
+            for connection in self.cities.keys():
+                if city in connection:
+                    connections.append(connection)
+            for connection in connections:
+                self.cities.pop(connection)
+            
+            self.only_cities.remove(city)
+            return True
+        return False
+    
 
 
 class Passenger:
