@@ -1,4 +1,4 @@
-from airline.airline import City, CityList, Airplane, Airline, Flight
+from airline.airline import City, CityList, Airplane, Airline, Flight, Passenger
 from termcolor import cprint, colored
 from datetime import datetime
 from base64 import b64encode
@@ -51,6 +51,8 @@ def handle_menu(option):
         airline.list_flights()
     elif option == 6:
         handle_remove_flight()
+    elif option == 7:
+        handle_reserve_seat()
 
 # #region cities
 
@@ -82,13 +84,11 @@ def handle_add_city():
 
     cprint("La ciudad ha sido agregada exitosamente", "green")
 
-    
 
 def handle_list_cities():
     cprint("Ciudades disponibles:", "blue", attrs=["bold"])
     print_cities()
 
-    
 
 def handle_remove_city():
     cprint("Remover ciudades", "blue", attrs=["bold"])
@@ -119,7 +119,8 @@ def handle_add_flight():
     flight = Flight(city_list.get_cities()[city_1-1],
                     city_list.get_cities()[city_2-1],
                     airline.airplanes[airplane_id-1],
-                    ''.join(random.choices(string.ascii_uppercase + string.digits, k=4)),
+                    ''.join(random.choices(
+                        string.ascii_uppercase + string.digits, k=4)),
                     datetime.strptime(arri_date, "%d/%m/%Y %H:%M"),
                     datetime.strptime(out_date, "%d/%m/%Y %H:%M"))
 
@@ -137,6 +138,32 @@ def handle_remove_flight():
     airline.cancel_flight(flight_id)
 
     cprint("Vuelo cancelado", "green")
+
+
+def handle_reserve_seat():
+    cprint("Realizar reserva", "blue")
+
+    cprint("Escoja el vuelo", "yellow")
+    airline.list_flights()
+    flight_code = input(">: ")
+    cprint("Ingrese su nombre", "yellow")
+    name = input(">: ")
+    cprint("Ingrese su número de documento", "yellow")
+    document = input(">: ")
+
+    passenger = Passenger(name, document)
+
+    flight = airline.get_flight(flight_code)
+
+    cprint("Asientos", "blue")
+    for index, seat in enumerate(flight.plane.seats):
+        print(index + 1, seat)
+
+    seat = int(input(">: "))
+    chosen_seat = flight.plane.seats[seat - 1]
+    seat_info = (chosen_seat.row, chosen_seat.column)
+
+    airline.make_reservation(flight_code, passenger, seat_info)
 
 
 def show_menu():

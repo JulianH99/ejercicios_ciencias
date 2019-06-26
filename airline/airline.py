@@ -126,6 +126,9 @@ class Seat:
         :return:
         """
         self.passenger = passenger
+    
+    def __str__(self):
+        return "{} {}".format(self.row, self.column)
 
 
 class Airplane:
@@ -301,3 +304,11 @@ class Airline:
         while flight:
             print(flight)
             flight = flight.next
+
+    def get_flight(self, f_id):
+        flight = self.head_flight
+        while flight:
+            if flight.code == f_id:
+                break
+            flight = flight.next
+        return flight
