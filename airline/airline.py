@@ -47,7 +47,7 @@ class CityList:
 
         if city_from.name not in map(str, self.only_cities):
             self.only_cities.append(city_from)
-        
+
         if city_to.name not in map(str, self.only_cities):
             self.only_cities.append(city_to)
 
@@ -57,7 +57,7 @@ class CityList:
         :rtype: List[City]
         """
         return self.only_cities
-    
+
     def get_cities_names(self):
         """
         :return: cities' name
@@ -71,18 +71,18 @@ class CityList:
         :type city_name: str 
         """
         if city_name in self.get_cities_names():
-            city = list(filter(lambda x: x.name == city_name, self.get_cities()))[0]
+            city = list(filter(lambda x: x.name ==
+                               city_name, self.get_cities()))[0]
             connections = []
             for connection in self.cities.keys():
                 if city in connection:
                     connections.append(connection)
             for connection in connections:
                 self.cities.pop(connection)
-            
+
             self.only_cities.remove(city)
             return True
         return False
-    
 
 
 class Passenger:
@@ -145,13 +145,13 @@ class Airplane:
         :return:
         """
 
-        seats = list(filter(lambda s: s.row == sea_info[0] and s.column == sea_info[1], self.seats))
+        seats = list(filter(lambda s: s.row ==
+                            sea_info[0] and s.column == sea_info[1], self.seats))
 
         if not seats:
             return None
         else:
             return seats[0]
-
 
 
 class Flight(Node):
@@ -202,10 +202,26 @@ class Flight(Node):
 
         self.plane.seats = list(map(map_seat, self.plane.seats))
 
+    def __str__(self):
+        return "{}> {} -> {} / {} -> {}".format(self.code,
+                                                self.cfrom.name,
+                                                self.cto.name,
+                                                self.departure_date,
+                                                self.arrival_date)
+
 
 class Airline:
     def __init__(self):
         self.head_flight: Flight = None
+        self.tail_flight: Flight = None
+        self.airplanes = []
+
+    def add_airplane(self, airplane):
+        """
+        :param airplane: airplane to add
+        :type airplane: Airplane
+        """
+        self.airplanes.append(airplane)
 
     def add_flight(self, flight):
         """
@@ -215,7 +231,7 @@ class Airline:
         :return: None
         """
         if self.head_flight is None:
-            self.head_flight = flight
+            self.head_flight = self.tail_flight = flight
         else:
             self.__add_flight_on_time(self.head_flight, flight)
 
@@ -224,6 +240,7 @@ class Airline:
         if prev_flight.next is None:
             prev_flight.next = flight
             flight.prev = prev_flight
+
             return flight
         elif prev_flight.departure_date == flight.departure_date:
             flight.next = prev_flight.next
@@ -237,22 +254,22 @@ class Airline:
     def cancel_flight(self, f_id):
         """
         Removes a flight from the list
+
         :param f_id:
         :type f_id: str
         :return: None
         """
         head = self.head_flight
-        while head:
-            if head.id == f_id:
-                break
-            else:
-                head = head.next
-
-        if head:
-            head.prev.next = head.next
-            head.next.prev = head.prev
-
-        return head
+        while head is not None:
+            if head.code == f_id:
+                if head.prev is not None:
+                    head.prev.next = head.next
+                    head.next.prev = head.prev
+                else:
+                    self.head_flight = head.next
+                    if head.next:
+                        head.next.prev = None
+            head = head.next
 
     def make_reservation(self, f_id, passenger, seat_info):
         """
@@ -284,4 +301,3 @@ class Airline:
         while flight:
             print(flight)
             flight = flight.next
-

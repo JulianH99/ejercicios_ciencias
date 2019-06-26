@@ -1,8 +1,19 @@
-from airline.airline import City, CityList
+from airline.airline import City, CityList, Airplane, Airline, Flight
 from termcolor import cprint, colored
+from datetime import datetime
+from base64 import b64encode
+import random
+import string
 import os
 
 city_list = CityList()
+airline = Airline()
+
+airplane1 = Airplane('airplane1')
+airplane2 = Airplane('airplane2')
+
+airline.add_airplane(airplane1)
+airline.add_airplane(airplane2)
 
 
 def clear():
@@ -29,11 +40,19 @@ def main():
 
 def handle_menu(option):
     if option == 1:
-        return handle_add_city()
+        handle_add_city()
     elif option == 2:
-        return handle_list_cities()
+        handle_list_cities()
     elif option == 3:
-        return handle_remove_city()
+        handle_remove_city()
+    elif option == 4:
+        handle_add_flight()
+    elif option == 5:
+        airline.list_flights()
+    elif option == 6:
+        handle_remove_flight()
+
+# #region cities
 
 
 def print_cities():
@@ -63,15 +82,13 @@ def handle_add_city():
 
     cprint("La ciudad ha sido agregada exitosamente", "green")
 
-    return True
-
+    
 
 def handle_list_cities():
     cprint("Ciudades disponibles:", "blue", attrs=["bold"])
     print_cities()
 
-    return True
-
+    
 
 def handle_remove_city():
     cprint("Remover ciudades", "blue", attrs=["bold"])
@@ -80,6 +97,46 @@ def handle_remove_city():
     chosen_city_obj = city_list.get_cities()[chosen_city - 1]
 
     city_list.remove_city(chosen_city_obj.name)
+
+# #endregion
+
+
+def handle_add_flight():
+    cprint("Elija la ciudad de partida", "yellow")
+    print_cities()
+    city_1 = int(input(">: "))
+    cprint("Elija la cidad de destino", "yellow")
+    city_2 = int(input(">: "))
+    cprint("Elija el avión asignado al vuelo")
+    for index, airplane in enumerate(airline.airplanes):
+        print(index + 1, colored(airplane.id, "magenta"))
+    airplane_id = int(input(">: "))
+    cprint("Fecha de salida (DD/MM/YYYY HH:mm):", "yellow")
+    out_date = input(">: ")
+    cprint("Fecha de entrada (DD/MM/YYYY HH:mm):", "yellow")
+    arri_date = input(">: ")
+
+    flight = Flight(city_list.get_cities()[city_1-1],
+                    city_list.get_cities()[city_2-1],
+                    airline.airplanes[airplane_id-1],
+                    ''.join(random.choices(string.ascii_uppercase + string.digits, k=4)),
+                    datetime.strptime(arri_date, "%d/%m/%Y %H:%M"),
+                    datetime.strptime(out_date, "%d/%m/%Y %H:%M"))
+
+    airline.add_flight(flight)
+
+    cprint("Vuelo agregado", "green")
+
+
+def handle_remove_flight():
+    cprint("Lista de vuelos", "blue")
+    airline.list_flights()
+    cprint("Elija el vuelo a cancelar", "yellow")
+    flight_id = input(">: ")
+
+    airline.cancel_flight(flight_id)
+
+    cprint("Vuelo cancelado", "green")
 
 
 def show_menu():
@@ -98,6 +155,8 @@ def show_menu():
     5. Listar vuelos
     6. Remover vuelos
     7. Reservar un asiento en un vuelo
+
+
     """)
 
     option = int(input("Ingrese una opcion: "))
