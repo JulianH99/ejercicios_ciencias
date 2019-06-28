@@ -53,6 +53,8 @@ def handle_menu(option):
         handle_remove_flight()
     elif option == 7:
         handle_reserve_seat()
+    elif option == 8:
+        handle_detail_flight()
 
 # #region cities
 
@@ -166,6 +168,32 @@ def handle_reserve_seat():
     airline.make_reservation(flight_code, passenger, seat_info)
 
 
+def handle_detail_flight():
+    cprint("Ver detalles de vuelo", "blue")
+    airline.list_flights()
+    cprint("Ingrese el id del vuelo", "yellow")
+    flight_id = input(">: ")
+    flight = airline.get_flight(flight_id)
+
+    print(""" 
+    -Código de vuelo: {}
+    -Ciudad de partida: {}
+    -Ciudad de llegada: {}
+    -Hora de partida: {}
+    -Hora de llegada: {}
+    """.format(flight.code, 
+                flight.cfrom, 
+                flight.cto, 
+                flight.departure_date, 
+                flight.arrival_date)
+    )
+
+    cprint("Sillas disponibles", "blue")
+    for index, seat in enumerate(flight.plane.seats):
+        if not seat.busy:
+            print(index + 1, seat)
+
+
 def show_menu():
     print("""
     =========
@@ -182,13 +210,14 @@ def show_menu():
     5. Listar vuelos
     6. Remover vuelos
     7. Reservar un asiento en un vuelo
+    8. Ver detalles de vuelo
 
 
     """)
 
     option = int(input("Ingrese una opcion: "))
 
-    if option not in range(0, 8):
+    if option not in range(0, 9):
         return show_menu()
     return option
 

@@ -147,10 +147,9 @@ class Airplane:
         :type sea_info: (int, str)
         :return:
         """
-
         seats = list(filter(lambda s: s.row ==
                             sea_info[0] and s.column == sea_info[1], self.seats))
-
+        
         if not seats:
             return None
         else:
@@ -199,9 +198,11 @@ class Flight(Node):
             :return: Seat
             """
             if seat.row == seat_info[0] and seat.column == seat_info[1]:
+                
                 seat.busy = True
                 seat.passenger = passenger
             return seat
+
 
         self.plane.seats = list(map(map_seat, self.plane.seats))
 
@@ -289,7 +290,7 @@ class Airline:
         """
         flight = self.head_flight
         while flight:
-            if flight.id == f_id:
+            if flight.code == f_id:
                 seat = flight.plane.get_seat(seat_info)
                 if seat and not seat.busy:
                     flight.add_passenger(passenger, seat_info)
